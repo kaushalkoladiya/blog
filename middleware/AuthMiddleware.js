@@ -5,19 +5,19 @@ module.exports = (req, res, next) => {
   let decodedToken;
 
   try {
-    decodedToken = jwt.verify(token, 'OurBlog')
+    decodedToken = jwt.verify(token, 'LoveYouBabe')
   } catch (error) {
-    error.httpStatusCode = 500
-    throw error
+    req.isAuth = false
+    return next()
   }
 
-  if(!decodedToken) {
-    const error = new Error('Not Authenticated')
-    error.httpStatusCode = 402
-    throw error
+  if (!decodedToken) {
+    req.isAuth = false
+    return next()
   }
   // console.log(decodedToken)
 
   req.userId = decodedToken.userId
+  req.isAuth = true
   next()
 }
