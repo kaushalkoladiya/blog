@@ -8,7 +8,10 @@ module.exports = buildSchema(`
 
   type RootMutation {
     createUser(signupUserData: SignupUserInputData): UserCreateSuccessfully!
-    loginUser(loginUserData: LoginUserInputData): LoginUserSuccessfully!
+    updateUser(updateUserData: SignupUserInputData, userId: UserId): User!
+    showUser(userId: UserId): User!
+    updatePassword(updatePasswordData: UpdatePasswordData, userId: UserId): UpdatePasswordSucessfully!
+
     createBlog(createBlogData: CreateBlogData): Blog!
     showBlog(blogId: BlogId): Blog!
     updateBlog(updateBlogData: CreateBlogData, blogId: BlogId): Blog!
@@ -16,6 +19,7 @@ module.exports = buildSchema(`
   }
 
   type RootQuery {
+    loginUser(loginUserData: LoginUserInputData): LoginUserSuccessfully!
     blogs(page: Int!): BlogData!
   }
 
@@ -58,11 +62,15 @@ module.exports = buildSchema(`
     totalBlogs: Int!
   }
 
+  type UpdatePasswordSucessfully {
+    result: String!
+  }
+
   input SignupUserInputData {
     email: String!
     name: String!
     password: String!
-    confirm_password: String!
+    confirm_password: String
   }
 
   input LoginUserInputData {
@@ -81,4 +89,13 @@ module.exports = buildSchema(`
     _id: String!
   }
 
+  input UserId {
+    _id: String!
+  }
+
+  input UpdatePasswordData {
+    oldPassword: String!
+    newPassword: String!
+    newConfirmPassword: String!
+  }
 `);

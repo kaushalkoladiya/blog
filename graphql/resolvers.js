@@ -4,31 +4,37 @@ const User = require('../model/User');
 
 const AuthController = require('../controller/AuthController');
 const BlogController = require('../controller/BlogController');
+const UserController = require('../controller/UserController');
+
+niv.extend('unique', async ({ value }) => {
+  // default field is email in this method
+  const filed = 'email';
+
+  let condition = {
+    email: value
+  };
+
+  const isEmailExist = await User.exists(condition);
+  if (isEmailExist) {
+    return false;
+  }
+  return true;
+});
+
+niv.extendMessages({
+  required: 'The :attribute field must not be empty.',
+  email: 'E-mail must be a valid email address.',
+  minLength: 'The :attribute is too short',
+  string: 'The :attribute must be string',
+  unique: 'Email is already used.',
+  equals: 'The password does not match'
+}, 'en');
 
 module.exports = {
+  // Operations on User table
   createUser: async ({ signupUserData }, req) => {
-
     const password = signupUserData.password;
-
-    niv.extend('unique', async ({ value }) => {
-      // default field is email in this method
-      const filed = 'email';
-
-      let condition = {
-        email: value
-      };
-
-      const isEmailExist = await User.exists(condition);
-      if (isEmailExist) {
-        return false;
-      }
-      return true;
-    });
-
-    niv.extend('equals', ({ value, args }) => {
-      const confirm_password = value;
-      return (password === confirm_password) ? true : false;
-    });
+    niv.extend('equals', ({ value, args }) => (password === value) ? true : false);
 
     const validatedData = new niv.Validator(signupUserData, {
       email: 'required|email|unique:User,email',
@@ -36,13 +42,6 @@ module.exports = {
       password: 'required|string|minLength:5',
       confirm_password: 'equals',
 
-    }, {
-      required: 'The :attribute field must not be empty.',
-      unique: 'Email is already used.',
-      email: 'E-mail must be a valid email address.',
-      minLength: 'The :attribute is too short',
-      string: 'The :attribute must be string',
-      equals: 'The password does not match'
     })
 
     const hasError = await validatedData.check();
@@ -74,6 +73,54 @@ module.exports = {
     return AuthController.login(loginUserData, req)
   },
 
+  updateUser: async ({ updateUserData, userId }, req) => {
+    if (!req.isAuth) {
+      const err = new Error('Token Expired.');
+      err.code = 401;
+      throw err;
+    }
+
+    const validatedData = new niv.Validator(updateUserData, {
+      email: 'required|email|unique:User,email',
+      name: 'required|string|minLength:5',
+      password: 'required|string|minLength:5',
+    });
+
+    const hasError = await validatedData.check();
+
+    if (!hasError) {
+      const err = new Error('Validatoin Failed.');
+      err.code = 400;
+      err.data = validatedData.errors;
+      throw err;
+    }
+    return UserController.update({ updateUserData: updateUserData, userId: userId }, req);
+  },
+
+  showUser: ({ userId }) => {
+    return UserController.show(userId);
+  },
+
+  updatePassword: async ({ updatePasswordData, userId }, req) => {
+    const password = updatePasswordData.newPassword;
+    niv.extend('equals', ({ value }) => (password === value) ? true : false);
+
+    const validatedData = new niv.Validator(updatePasswordData, {
+      newPassword: 'required|string|minLength:5',
+      newConfirmPassword: 'equals',
+    });
+
+    const hasError = await validatedData.check();
+    if (!hasError) {
+      const err = new Error('Validatoin Failed.');
+      err.code = 400;
+      err.data = validatedData.errors;
+      throw err;
+    }
+    return UserController.updatePassword({ updatePasswordData: updatePasswordData, userId: userId }, req);
+  },
+
+  // Operations on Blog table
   blogs: ({ page }, req) => {
     return BlogController.index(page)
   },
