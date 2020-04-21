@@ -16,7 +16,7 @@ module.exports = buildSchema(`
   }
 
   type RootQuery {
-    blogs: [Blog!]!
+    blogs(page: Int!): BlogData!
   }
 
   type Blog {
@@ -51,6 +51,11 @@ module.exports = buildSchema(`
 
   type DeleteBlog {
     delete: Boolean!
+  }
+
+  type BlogData {
+    blogs: [Blog!]!
+    totalBlogs: Int!
   }
 
   input SignupUserInputData {

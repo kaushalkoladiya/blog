@@ -169,11 +169,19 @@ exports.remove = async (req, res, next) => {
 }
 */
 
-exports.index = async (req, res, next) => {
+exports.index = async ({ page }, req) => {
+  if (!page) {
+    page = 1;
+  }
+  const perPage = 5;
+  const totalBlogs = await Blog.countDocuments();
+
   const blogs = await Blog
     .find()
-    .limit(5)
-    .populate('userId')
+    .sort({createdAt: -1})
+    .skip(perPage * (page - 1))
+    .limit(perPage)
+    .populate('userId');
 
   if (!blogs) {
     const err = new Error('Internal server error')
@@ -182,7 +190,19 @@ exports.index = async (req, res, next) => {
   }
 
   return {
-    blogs: blogs
+    blogs: blogs.map((blog) => {
+      return {
+        ...blog._doc,
+        _id: blog._id.toString(),
+        createdAt: blog.createdAt.toISOString(),
+        userId: {
+          ...blog._doc.userId,
+          _id: blog.userId._id.toString(),
+          name: blog.userId.name
+        }
+      };
+    }),
+    totalBlogs: totalBlogs
   }
 }
 
@@ -221,8 +241,8 @@ exports.store = async ({ title, subtitle, description, url }, req) => {
       name: blog.userId.name,
     },
     _id: blog._id.toString(),
-    createdAt: blog.createdAt.toString(),
-    updatedAt: blog.updatedAt.toString()
+    createdAt: blog.createdAt.toISOString(),
+    updatedAt: blog.updatedAt.toISOString()
   }
 }
 
@@ -242,8 +262,8 @@ exports.show = async ({ _id: blogId }, req) => {
       name: blog.userId.name,
     },
     _id: blog._id.toString(),
-    createdAt: blog.createdAt.toString(),
-    updatedAt: blog.updatedAt.toString()
+    createdAt: blog.createdAt.toISOString(),
+    updatedAt: blog.updatedAt.toISOString()
   }
 }
 
@@ -270,7 +290,7 @@ exports.update = async ({ updateBlogData: { title, subtitle, description, url },
       name: blog.userId.name,
     },
     _id: blog._id.toString(),
-    createdAt: blog.createdAt.toString(),
+    createdAt: blog.createdAt.toISOString(),
   };
 }
 

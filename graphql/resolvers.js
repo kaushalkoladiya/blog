@@ -74,9 +74,8 @@ module.exports = {
     return AuthController.login(loginUserData, req)
   },
 
-  blogs: () => {
-    console.log('enter')
-    return BlogController.index()
+  blogs: ({ page }, req) => {
+    return BlogController.index(page)
   },
 
   createBlog: async ({ createBlogData }, req) => {
