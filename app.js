@@ -43,13 +43,11 @@ app.use((req, res, next) => {
 
 app.use(AuthMiddleware);
 
-
 app.use(
 	'/graphql',
 	graphqlHTTP({
 		schema: graphqlSchema,
 		rootValue: graphqlResolver,
-		graphiql: true,
 		customFormatErrorFn(err) {
 			if (!err.originalError) {
 				return err;
