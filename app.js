@@ -1,5 +1,9 @@
 const express = require('express');
 const bodyParser = require("body-parser");
+const helmet = require('helmet');
+const morgan = require('morgan');
+const path = require('path');
+const fs = require('fs');
 
 const graphqlHTTP = require('express-graphql');
 
@@ -13,17 +17,25 @@ const blogRoute = require('./router/blog');
 
 const app = express();
 
+const accessLog = fs.createWriteStream(
+	path.join(__dirname, 'access.log'),
+	{ flags: 'a' }
+);
+
+app.use(helmet());
+app.use(morgan('combined', { stream: accessLog }));
+
 app.use(bodyParser.json());
 
-// app.get('/', (req, res) => {
-//   res.send('Hii, there');
-// });
+app.get('/', (req, res) => {
+  res.send('Go to our official site<h1><a href="https://blognode.netlify.com">blognode</h1>');
+});
 
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-	if(req.method == 'OPTIONS') {
+	if (req.method == 'OPTIONS') {
 		return;
 	}
 	next();
