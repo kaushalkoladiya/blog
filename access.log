@@ -2,3 +2,8 @@
 ::1 - - [24/Apr/2020:04:05:45 +0000] "GET / HTTP/1.1" 200 51 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36"
 ::1 - - [24/Apr/2020:04:05:45 +0000] "GET /favicon.ico HTTP/1.1" 404 150 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36"
 ::ffff:127.0.0.1 - - [24/Apr/2020:04:08:09 +0000] "GET / HTTP/1.1" 200 79 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36"
+::1 - - [24/Apr/2020:04:49:51 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36"
+::1 - - [24/Apr/2020:04:50:07 +0000] "POST /graphql HTTP/1.1" 500 66 "-" "PostmanRuntime/7.24.1"
+::1 - - [24/Apr/2020:04:50:26 +0000] "POST /graphql HTTP/1.1" 500 62 "-" "PostmanRuntime/7.24.1"
+::ffff:127.0.0.1 - - [24/Apr/2020:06:49:42 +0000] "OPTIONS /graphql HTTP/1.1" 200 2 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36"
+::ffff:127.0.0.1 - - [24/Apr/2020:06:49:43 +0000] "POST /graphql HTTP/1.1" 500 140 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36"
