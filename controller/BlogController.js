@@ -169,7 +169,7 @@ exports.remove = async (req, res, next) => {
 }
 */
 
-exports.index = async ({ page }, req) => {
+exports.index = async (page, req) => {
   if (!page) {
     page = 1;
   }
@@ -178,7 +178,7 @@ exports.index = async ({ page }, req) => {
 
   const blogs = await Blog
     .find()
-    .sort({createdAt: -1})
+    .sort({ createdAt: -1 })
     .skip(perPage * (page - 1))
     .limit(perPage)
     .populate('userId');
