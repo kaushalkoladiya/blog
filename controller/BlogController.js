@@ -1,30 +1,40 @@
-// const { validationResult } = require('express-validator/check')
+const { validationResult } = require('express-validator/check')
 
 const Blog = require('../model/Blog')
 const User = require('../model/User')
 /*
 exports.index = async (req, res, next) => {
   try {
+    const page = req.body.page;
+    if (!page) {
+      page = 1;
+    }
+    const perPage = 5;
+    const totalBlogs = await Blog.countDocuments();
+
     const blogs = await Blog
       .find()
-      .limit(5)
-      .populate('userId')
+      .sort({ createdAt: -1 })
+      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .populate('userId');
 
     if (!blogs) {
       const err = new Error('Internal server error')
       err.httpStatusCode = 500
       throw err
     }
-    // console.log(blogs);
 
     res.status(200).json({
       result: 'success',
-      blogs: blogs
+      blogs: blogs,
+      totalBlogs: totalBlogs
     })
   } catch (error) {
     next(error)
   }
 }
+*/
 
 exports.store = async (req, res, next) => {
   try {
@@ -32,20 +42,19 @@ exports.store = async (req, res, next) => {
     if (!validatedData.isEmpty()) {
       console.log(validatedData.errors);
       const err = new Error('Validation failed.')
-      err.httpStatusCode = 402
+      err.httpStatusCode = 402;
+      err.data = validatedData.errors;
       throw err
     }
 
     const title = req.body.title
     const subtitle = req.body.subtitle || ''
     const description = req.body.description
-    const url = req.body.url || ''
 
     const blog = await Blog.create({
       title: title,
       subtitle: subtitle,
       description: description,
-      url: url,
       userId: req.userId
     });
 
@@ -77,7 +86,7 @@ exports.store = async (req, res, next) => {
   }
 }
 
-
+/*
 exports.show = async (req, res, next) => {
   try {
     const blogId = req.params.blogId
@@ -98,13 +107,14 @@ exports.show = async (req, res, next) => {
     next(error)
   }
 }
-
+*/
 exports.update = async (req, res, next) => {
   try {
     const validatedData = validationResult(req)
     if (!validatedData.isEmpty()) {
       const err = new Error('Validation failed.')
       err.httpStatusCode = 402
+      err.data = validatedData.errors
       throw err
     }
 
@@ -113,13 +123,11 @@ exports.update = async (req, res, next) => {
     const title = req.body.title
     const subtitle = req.body.subtitle || ''
     const description = req.body.description
-    const url = req.body.url || ''
 
     const blog = await Blog.findByIdAndUpdate(blogId, {
       title: title,
       subtitle: subtitle,
       description: description,
-      url: url
     }).where('userId', req.userId)
 
     if (!blog) {
@@ -137,7 +145,7 @@ exports.update = async (req, res, next) => {
     next(error)
   }
 }
-
+/*
 exports.remove = async (req, res, next) => {
   try {
     const blogId = req.params.blogId
@@ -205,7 +213,7 @@ exports.index = async (page, req) => {
     totalBlogs: totalBlogs
   }
 }
-
+/*
 exports.store = async ({ title, subtitle, description, url }, req) => {
   let blog = await Blog.create({
     title: title,
@@ -245,28 +253,42 @@ exports.store = async ({ title, subtitle, description, url }, req) => {
     updatedAt: blog.updatedAt.toISOString()
   }
 }
-
+*/
 exports.show = async ({ _id: blogId }, req) => {
+  // console.log(req.userId, blogId);
+  const userId = req.userId;
   const blog = await Blog.findById(blogId).populate('userId')
 
   if (!blog) {
-    const err = new Error('Internal server error.')
-    err.code = 500
-    throw err
+    const err = new Error('Not Found.')
+    err.code = 404;
+    throw err;
+  }
+  let fav = false;
+  if (userId) {
+    // Fetch user
+    const user = await User.findById(userId);
+    // check the list
+    const arr = user.favoriteBlogs;
+    const index = arr.findIndex(ele => ele == blogId);
+    if (index >= 0) { fav = true; }
   }
 
   return {
-    ...blog._doc,
-    userId: {
-      _id: blog.userId._id.toString(),
-      name: blog.userId.name,
+    blog: {
+      ...blog._doc,
+      userId: {
+        _id: blog.userId._id.toString(),
+        name: blog.userId.name,
+      },
+      _id: blog._id.toString(),
+      createdAt: blog.createdAt.toISOString(),
+      updatedAt: blog.updatedAt.toISOString(),
     },
-    _id: blog._id.toString(),
-    createdAt: blog.createdAt.toISOString(),
-    updatedAt: blog.updatedAt.toISOString()
+    isFav: fav
   }
 }
-
+/*
 exports.update = async ({ updateBlogData: { title, subtitle, description, url }, blogId: { _id: blogId } }, req) => {
   const blog = await Blog.findByIdAndUpdate(blogId, {
     title: title,
@@ -293,7 +315,7 @@ exports.update = async ({ updateBlogData: { title, subtitle, description, url },
     createdAt: blog.createdAt.toISOString(),
   };
 }
-
+*/
 exports.remove = async ({ _id: blogId }, req) => {
   const isAuthorize = await Blog.findByIdAndDelete(blogId).where('userId', req.userId)
 
@@ -311,4 +333,32 @@ exports.remove = async ({ _id: blogId }, req) => {
   return {
     delete: true
   }
+}
+
+exports.addToFav = async ({ blogId: { _id: blogId }, userId: { _id: userId } }, req) => {
+  if (userId !== req.userId) {
+    const err = new Error('Action Forbidden.')
+    err.httpStatusCode = 403
+    throw err
+  }
+  const user = await User.findById(userId);
+  user.favoriteBlogs.push(blogId);
+  await user.save();
+  return {
+    result: "success"
+  };
+}
+
+exports.removeFromFav = async ({ blogId: { _id: blogId }, userId: { _id: userId } }, req) => {
+  if (userId !== req.userId) {
+    const err = new Error('Action Forbidden.')
+    err.httpStatusCode = 403
+    throw err
+  }
+  const user = await User.findById(userId);
+  user.favoriteBlogs.pull(blogId);
+  await user.save();
+  return {
+    result: "success"
+  };
 }

@@ -11,11 +11,14 @@ module.exports = buildSchema(`
     updateUser(updateUserData: SignupUserInputData, userId: UserId): User!
     showUser(userId: UserId): User!
     updatePassword(updatePasswordData: UpdatePasswordData, userId: UserId): UpdatePasswordSucessfully!
-
+    favList: BlogData!
+    
     createBlog(createBlogData: CreateBlogData): Blog!
-    showBlog(blogId: BlogId): Blog!
+    showBlog(blogId: BlogId): ShowBlog!
     updateBlog(updateBlogData: CreateBlogData, blogId: BlogId): Blog!
     deleteBlog(blogId: BlogId): DeleteBlog!
+    addToFav(blogId: BlogId, userId: UserId): Success!
+    removeFromFav(blogId: BlogId, userId: UserId): Success!
   }
 
   type RootQuery {
@@ -28,7 +31,6 @@ module.exports = buildSchema(`
     title: String!
     subtitle: String!
     description: String!
-    url: String!
     userId: User!
     createdAt: String!
     updatedAt: String!
@@ -42,6 +44,11 @@ module.exports = buildSchema(`
     blogs: [Blog]!
     createdAt: String!
     updatedAt: String!
+  }
+
+  type ShowBlog {
+    blog: Blog!
+    isFav: Boolean!
   }
 
   type UserCreateSuccessfully {
@@ -66,6 +73,10 @@ module.exports = buildSchema(`
     result: String!
   }
 
+  type Success {
+    result: String
+  }
+
   input SignupUserInputData {
     email: String!
     name: String!
@@ -82,7 +93,6 @@ module.exports = buildSchema(`
     title: String!
     subtitle: String!
     description: String!
-    url: String!
   }
 
   input BlogId {

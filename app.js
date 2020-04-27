@@ -12,7 +12,7 @@ const graphqlResolver = require('./graphql/resolvers');
 
 const AuthMiddleware = require('./middleware/AuthMiddleware');
 
-const authRoute = require('./router/auth');
+// const authRoute = require('./router/auth');
 const blogRoute = require('./router/blog');
 
 const app = express();
@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
 });
 
 app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.setHeader('Access-Control-Allow-Origin', 'https://blognode.netlify.app');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 	if (req.method == 'OPTIONS') {
@@ -63,7 +63,7 @@ app.use(
 
 
 // app.use(authRoute);
-// app.use('/blog', blogRoute);
+app.use('/blog', blogRoute);
 
 // Error headler
 app.use((err, req, res, next) => {

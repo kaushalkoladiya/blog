@@ -8,8 +8,6 @@ const UserController = require('../controller/UserController');
 
 niv.extend('unique', async ({ value }) => {
   // default field is email in this method
-  const filed = 'email';
-
   let condition = {
     email: value
   };
@@ -81,7 +79,7 @@ module.exports = {
     }
 
     const validatedData = new niv.Validator(updateUserData, {
-      email: 'required|email|unique:User,email',
+      email: 'required|email',
       name: 'required|string|minLength:5',
       password: 'required|string|minLength:5',
     });
@@ -102,6 +100,11 @@ module.exports = {
   },
 
   updatePassword: async ({ updatePasswordData, userId }, req) => {
+    if (!req.isAuth) {
+      const err = new Error('Token Expired.');
+      err.code = 401;
+      throw err;
+    }
     const password = updatePasswordData.newPassword;
     niv.extend('equals', ({ value }) => (password === value) ? true : false);
 
@@ -118,6 +121,15 @@ module.exports = {
       throw err;
     }
     return UserController.updatePassword({ updatePasswordData: updatePasswordData, userId: userId }, req);
+  },
+
+  favList: (args, req) => {
+    if (!req.isAuth) {
+      const err = new Error('Token Expired.');
+      err.code = 401;
+      throw err;
+    }
+    return UserController.favList(req);
   },
 
   // Operations on Blog table
@@ -187,6 +199,24 @@ module.exports = {
     }
     // console.log('hiu');
     return BlogController.remove(blogId, req);
+  },
+
+  addToFav: (args, req) => {
+    if (!req.isAuth) {
+      const err = new Error('Token Expired.');
+      err.code = 401;
+      throw err;
+    }
+    return BlogController.addToFav(args, req);
+  },
+
+  removeFromFav: (args, req) => {
+    if (!req.isAuth) {
+      const err = new Error('Token Expired.');
+      err.code = 401;
+      throw err;
+    }
+    return BlogController.removeFromFav(args, req);
   }
 
 }

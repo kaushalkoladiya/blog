@@ -8,8 +8,16 @@ exports.update = async ({ updateUserData: { name, email, password }, userId: { _
     err.code = 403;
     throw err;
   }
-
-  let user = await User.findById(userId);
+  let user;
+  const isExists = await User.exists({ email: email });
+  if (isExists) {
+    user = await User.findOne().where({ _id: req.userId, email: email });
+    if (!user) {
+      const err = new Error('Email already exists.');
+      err.code = 400;
+      throw err;
+    }
+  }
 
   if (!user) {
     const err = new Error('Internal server error.');
@@ -96,5 +104,13 @@ exports.updatePassword = async ({ updatePasswordData: { oldPassword, newPassword
 
   return {
     result: 'success'
+  };
+}
+
+exports.favList = async (req) => {
+  const user = await User.findById(req.userId).populate('favoriteBlogs');
+  return {
+    blogs: user.favoriteBlogs,
+    totalBlogs: user.favoriteBlogs.length
   };
 }

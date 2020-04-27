@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const socketio = require('socket.io');
+// const socketio = require('socket.io');
 const PORT = process.env.PORT || 5000;
 
 const app = require('./app');
@@ -8,7 +8,7 @@ mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PA
   .then(result => {
     console.log('connected!');
     const server = app.listen(PORT);
-    const io = socketio(server);
+    // const io = socketio(server);
 
   })
   .catch( err => console.log(err) );
