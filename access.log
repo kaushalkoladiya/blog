@@ -777,3 +777,4 @@
 ::1 - - [27/Apr/2020:11:50:07 +0000] "POST /graphql HTTP/1.1" 200 370 "http://localhost:3000/favorite" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"
 ::1 - - [27/Apr/2020:11:50:09 +0000] "POST /graphql HTTP/1.1" 200 767 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"
 ::1 - - [27/Apr/2020:11:51:15 +0000] "OPTIONS /graphql HTTP/1.1" 200 2 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"
+::1 - - [27/Apr/2020:12:15:09 +0000] "POST /graphql HTTP/1.1" 200 262 "-" "PostmanRuntime/7.24.1"
