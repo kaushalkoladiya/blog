@@ -15,7 +15,6 @@ module.exports = (req, res, next) => {
     req.isAuth = false
     return next()
   }
-  // console.log(decodedToken)
 
   req.userId = decodedToken.userId
   req.isAuth = true
